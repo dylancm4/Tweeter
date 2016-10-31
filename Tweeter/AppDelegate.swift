@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Tweeter
 //
-//  Created by Dylan Miller on 10/27/16.
+//  Created by Dylan Miller on 10/26/16.
 //  Copyright © 2016 Dylan Miller. All rights reserved.
 //
 
@@ -12,10 +12,45 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    let storyboard = UIStoryboard(name: Constants.StoryboardName.main, bundle: nil)
 
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    deinit
+    {
+        // Remove all of this object's observer entries.
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool
+    {
         // Override point for customization after application launch.
+        
+        // If the current user is saved in UserDefaults, skip the login screen.
+        if (CurrentUser.shared.isLoggedIn())
+        {
+            let tweetsNavigationController =
+                storyboard.instantiateViewController(withIdentifier: "TweetsNavigationController")
+            window?.rootViewController = tweetsNavigationController
+        }
+        
+        // When the user logs out, return to the LoginViewController.
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name(Constants.Notification.userDidLogout),
+            object: nil,
+            queue: OperationQueue.main)
+            { (Notification) in
+                
+                UIView.animate(
+                    withDuration: 1.0,
+                    animations:
+                    { () -> Void in
+                        
+                        let loginViewController = self.storyboard.instantiateInitialViewController()
+                        self.window?.rootViewController = loginViewController
+                    }
+                )
+                // Will this code work if this was already root (if user was not saved)?!!!
+            }
+        
         return true
     }
 
@@ -41,6 +76,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool
+    {
+        if let twitterClient = TwitterClient.shared
+        {
+            // Handle the open URL from the Twitter authorization page.
+            twitterClient.handleOpenUrl(url)
+        }
+        
+        return true
+    }
 }
 
