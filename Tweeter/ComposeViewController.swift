@@ -8,6 +8,11 @@
 
 import UIKit
 
+protocol ComposeViewControllerDelegate: class
+{
+    func composeViewController(composeViewController: ComposeViewController, addTweetStatus status: String, inReplyToId: Int64?)
+}
+
 class ComposeViewController: UIViewController, UITextViewDelegate
 {
     @IBOutlet weak var textView: UITextView!
@@ -15,8 +20,10 @@ class ComposeViewController: UIViewController, UITextViewDelegate
     @IBOutlet weak var charsLeftLabel: UILabel!
     @IBOutlet weak var tweetButton: UIButton!
     @IBOutlet weak var bottomViewBottomConstraint: NSLayoutConstraint!
-    @IBOutlet weak var errorBannerView: UIView!
     
+    weak var delegate: ComposeViewControllerDelegate?
+    var inReplyToId: Int64?
+    var inReplyToScreenName: String?
     let profileImageView = UIImageView()
     
     deinit
@@ -35,12 +42,17 @@ class ComposeViewController: UIViewController, UITextViewDelegate
         // Set the user profile image in the left navigation bar button.
         setProfileImage()
         
-        // Hide the error banner.
-        errorBannerView.isHidden = true
-
         // Rounded tweet button, disabled until there is text.
         tweetButton.layer.cornerRadius = 8.0
         tweetButton.isEnabled = false
+        
+        // If this is a reply, add the reply screen name to the start of the
+        // text view.
+        if let inReplyToScreenName = inReplyToScreenName
+        {
+            textView.text = "@" + inReplyToScreenName + " "
+            textViewDidChange(textView)
+        }
         
         // Show the keyboard, and make sure it is shown again when the app goes
         // into the background and comes back.
@@ -110,9 +122,17 @@ class ComposeViewController: UIViewController, UITextViewDelegate
         dismiss(animated: true, completion: nil)
     }
     
+    // Pass the tweet to the delegate to handle.
     @IBAction func onTweetButton(_ sender: UIButton)
     {
-        // implement!!!
+        if let delegate = delegate
+        {
+            delegate.composeViewController(
+                composeViewController: self,
+                addTweetStatus: textView.text,
+                inReplyToId: inReplyToId)
+        }
+        dismiss(animated: true, completion: nil)
     }
     
     // Set the user profile image in the left navigation bar button.
@@ -158,17 +178,5 @@ class ComposeViewController: UIViewController, UITextViewDelegate
             }
         }
         return 0
-    }
-
-    // Show or hide the error banner based on success or failure. Hide the
-    // progress HUD.
-    func requestDidSucceed(_ success: Bool) // remove if not used!!!
-    {
-        DispatchQueue.main.async
-        {
-            self.errorBannerView.isHidden = success
-                
-            //!!!MBProgressHUD.hide(for: self.view, animated: true)
-        }
     }
 }

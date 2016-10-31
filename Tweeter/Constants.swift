@@ -24,6 +24,10 @@ enum Constants
         static let apiAccessTokenMethod = "POST"
         static let apiVerifyCredentialsPath = "1.1/account/verify_credentials.json"
         static let apiHomeTimelinePath = "/1.1/statuses/home_timeline.json"
+        static let apiStatusesUpdate = "/1.1/statuses/update.json"
+        static let apiRetweetWithId = "/1.1/statuses/retweet"
+        static let apiFavoritesCreatePath = "/1.1/favorites/create.json"
+        static let apiFavoritesDestroyPath = "/1.1/favorites/destroy.json"
         static let dateFormat = "EEE MMM d HH:mm:ss Z y"
         static let maxTweetCharsCount = 140
     }
@@ -36,10 +40,29 @@ enum Constants
         static let screenName = "screen_name"
     }
     
+    enum TwitterHomeTimelineParameter
+    {
+        static let maxId = "max_id"
+    }
+    
+    enum TwitterStatusesUpdateParameter
+    {
+        static let status = "parameters"
+        static let inReplyToStatusId = "in_reply_to_status_id"
+    }
+    
+    enum TwitterFavoritesParameter
+    {
+        static let id = "id"
+    }
+    
     enum TwitterHomeTimelineDictKey
     {
         static let createdAt = "created_at"
+        static let favorited = "favorited"
         static let favoritesCount = "favourites_count"
+        static let id = "id"
+        static let retweeted = "retweeted"
         static let retweetsCount = "retweet_count"
         static let text = "text"
         static let user = "user"
@@ -66,6 +89,8 @@ enum Constants
     enum SegueName
     {
         static let login = "loginSegue"
+        static let compose = "composeSegue"
+        static let reply = "replySegue"
     }
     
     enum UserDefaults

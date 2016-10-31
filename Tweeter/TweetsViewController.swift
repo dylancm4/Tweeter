@@ -15,6 +15,10 @@ class TweetsViewController: UIViewController
     @IBOutlet weak var errorBannerView: UIView!
     
     var tweets = [Tweet]()
+    var maxId: Int64 = 0
+    var inReplyToId: Int64?
+    var inReplyToScreenName: String?
+    var scrollLoadingData = false
 
     deinit
     {
@@ -63,6 +67,34 @@ class TweetsViewController: UIViewController
         
         // Get tweets when the view controller loads.
         getHomeTimeLineTweets()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if segue.identifier == Constants.SegueName.compose
+        {
+            // Set self as the ComposeViewController delegate.
+            if let navigationController = segue.destination as? UINavigationController
+            {
+                if let composeViewController = navigationController.topViewController as? ComposeViewController
+                {
+                    composeViewController.delegate = self
+                }
+            }
+        }
+        else if segue.identifier == Constants.SegueName.reply
+        {
+            // Set self as the ComposeViewController delegate.
+            if let navigationController = segue.destination as? UINavigationController
+            {
+                if let composeViewController = navigationController.topViewController as? ComposeViewController
+                {
+                    composeViewController.delegate = self
+                    composeViewController.inReplyToId = inReplyToId
+                    composeViewController.inReplyToScreenName = inReplyToScreenName
+                }
+            }
+        }
     }
     
     @IBAction func onSignOutButton(_ sender: UIBarButtonItem)
@@ -114,11 +146,22 @@ class TweetsViewController: UIViewController
             // Display progress HUD before the request is made.
             MBProgressHUD.showAdded(to: view, animated: true)
             
-            twitterClient.getHomeTimeLineTweets(
+            twitterClient.getHomeTimelineTweets(
+                maxId: scrollLoadingData ? maxId : nil,
                 success:
-                { (tweets: [Tweet]) in
+                { (tweets: [Tweet], nextMaxId: Int64) in
                     
-                    self.tweets = tweets
+                    if self.scrollLoadingData
+                    {
+                        // Infinite scroll.
+                        self.scrollLoadingData = false
+                        self.tweets.append(contentsOf: tweets)
+                    }
+                    else
+                    {
+                        self.tweets = tweets
+                    }
+                    self.maxId = nextMaxId
                     
                     self.requestDidSucceed(true, refreshControl: refreshControl)
 
@@ -168,9 +211,114 @@ extension TweetsViewController: UITableViewDataSource
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell") as! TweetTableViewCell
         
         // Set the cell contents.
-        cell.setData(tweet: tweets[indexPath.row])
+        cell.setData(tweet: tweets[indexPath.row], delegate: self)
         
         return cell
     }
 }
+
+// UIScrollView methods
+extension TweetsViewController: UIScrollViewDelegate
+{
+    func scrollViewDidScroll(_ scrollView: UIScrollView)
+    {
+        if (!scrollLoadingData)
+        {
+            // Calculate the position of one screen length before the bottom
+            // of the results.
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            
+            // When the user has scrolled past the threshold, start requesting
+            if (scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging)
+            {
+                scrollLoadingData = true
+                
+                // Get more tweets.
+                getHomeTimeLineTweets()
+            }
+        }
+    }
+}
+
+// TweetTableViewCellDelegate methods
+extension TweetsViewController: TweetTableViewCellDelegate
+{
+    func tweetTableViewCell(tweetTableViewCell: TweetTableViewCell, inReplyToId: Int64?, inReplyToScreenName: String?)
+    {
+        self.inReplyToId = inReplyToId
+        self.inReplyToScreenName = inReplyToScreenName
+        performSegue(withIdentifier: Constants.SegueName.reply, sender: self)
+    }
+}
+
+// ComposeViewController methods
+extension TweetsViewController: ComposeViewControllerDelegate
+{
+    // Add the specified tweet.
+    func composeViewController(composeViewController: ComposeViewController, addTweetStatus status: String, inReplyToId: Int64?)
+    {
+        if let twitterClient = TwitterClient.shared
+        {
+            // Insert a dummy tweet at the front of the tweets array so that
+            // the user will immediately see the tweet they composed. This
+            // dummy tweet will receive special treatment (e.g., no favoriting,
+            // no retweeting).
+            let dummyId = Int64(arc4random())
+            let tweet = Tweet(dummyId: dummyId, status: status)
+            tweets.insert(tweet, at: 0)
+            tableView.reloadData()
+            
+            twitterClient.tweet(
+                status: status,
+                inReplyToId: inReplyToId,
+                success:
+                { (tweet: Tweet) in
+                    
+                    print("Tweet worked!")//!!!
+                    
+                    // Remove the dummy tweet.
+                    self.removeTweetWith(id: dummyId)
+                    
+                    // Insert the real tweet.
+                    self.tweets.insert(tweet, at: 0)
+                   
+                    DispatchQueue.main.async
+                    {
+                        self.tableView.reloadData()
+                    }
+                },
+                failure:
+                { (error: Error?) in
+                    
+                    print("Tweet failed! \(error?.localizedDescription)")//!!!
+
+                    // An error occurred, remove the dummy tweet.
+                    self.removeTweetWith(id: dummyId)
+
+                    DispatchQueue.main.async
+                    {
+                        self.tableView.reloadData()
+                    }
+                }
+            )
+        }
+    }
+    
+    // Remove the tweet with the specified ID from the tweets array.
+    func removeTweetWith(id: Int64)
+    {
+        var index = 0
+        for tweet in tweets
+        {
+            if tweet.id == id
+            {
+                tweets.remove(at: index)
+                return
+            }
+            index = index + 1
+        }
+    }
+}
+
 

@@ -43,6 +43,7 @@ class OnOffButton: UIButton
         if sender == self
         {
             isOn = !isOn
+            sendActions(for: UIControlEvents.valueChanged)
         }
     }
     

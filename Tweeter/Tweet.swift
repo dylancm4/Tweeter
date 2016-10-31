@@ -11,14 +11,26 @@ import Foundation
 // Represents a single tweet.
 class Tweet
 {
+    var id: Int64?
     var user: User?
     var text: String?
     var createdAt: Date?
+    var isFavorited: Bool?
+    var isRetweeted: Bool?
     var retweetsCount: Int?
     var favoritesCount: Int?
+    var isDummy: Bool
 
     init(dictionary: NSDictionary)
     {
+        if let idNumber = dictionary[Constants.TwitterHomeTimelineDictKey.id] as? NSNumber
+        {
+           id = idNumber.int64Value
+        }
+        else
+        {
+            id = nil
+        }
         if let userDict = dictionary[Constants.TwitterHomeTimelineDictKey.user] as? NSDictionary
         {
             user = User(dictionary: userDict)
@@ -38,8 +50,25 @@ class Tweet
         {
             createdAt = nil
         }
-        retweetsCount = (dictionary[Constants.TwitterHomeTimelineDictKey.retweetsCount] as? Int) ?? 0
-        favoritesCount = (dictionary[Constants.TwitterHomeTimelineDictKey.favoritesCount] as? Int) ?? 0
+        isFavorited = dictionary[Constants.TwitterHomeTimelineDictKey.favorited] as? Bool
+        isRetweeted = dictionary[Constants.TwitterHomeTimelineDictKey.retweeted] as? Bool
+        retweetsCount = dictionary[Constants.TwitterHomeTimelineDictKey.retweetsCount] as? Int
+        favoritesCount = dictionary[Constants.TwitterHomeTimelineDictKey.favoritesCount] as? Int
+        isDummy = false
+    }
+    
+    // For dummy temporary Tweets which are created locally.
+    init(dummyId: Int64, status: String)
+    {
+        id = dummyId
+        user = CurrentUser.shared.user
+        text = status
+        createdAt = Date()
+        isFavorited = nil
+        isRetweeted = nil
+        retweetsCount = nil
+        favoritesCount = nil
+        isDummy = true
     }
     
     // The string representing the time elapsed since the tweet was created.
@@ -119,16 +148,28 @@ class Tweet
         }
     }
     
-    // Return an array of Tweet objects based on the specified Twitter
-    // dictionary.
-    class func getTweetsWithArray(_ dictionaries: [NSDictionary]) -> [Tweet]
+    // Returns an array of Tweet objects based on the specified Twitter
+    // dictionary. Also returns the max_id parameter to use in a
+    // home_timeline request to get the next set of tweets.
+    class func getTweetsWithArray(_ dictionaries: [NSDictionary]) -> ([Tweet], Int64)
     {
         var tweets = [Tweet]()
+        var lowestId = Int64.max
         for dictionary in dictionaries
         {
             let tweet = Tweet(dictionary: dictionary)
             tweets.append(tweet)
+            
+            if let id = tweet.id, id < lowestId
+            {
+                lowestId = id
+            }
         }
-        return tweets
+        
+        // "Subtract 1 from the lowest Tweet ID returned from the previous
+        // request and use this for the value of max_id."
+        let maxId = lowestId - 1
+        
+        return (tweets, maxId)
     }
 }

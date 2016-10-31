@@ -48,7 +48,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.window?.rootViewController = loginViewController
                     }
                 )
-                // Will this code work if this was already root (if user was not saved)?!!!
             }
         
         return true

@@ -8,17 +8,70 @@
 
 import UIKit
 
+protocol TweetTableViewCellDelegate: class
+{
+    func tweetTableViewCell(tweetTableViewCell: TweetTableViewCell, inReplyToId: Int64?, inReplyToScreenName: String?)
+}
+
 class TweetTableViewCell: UITableViewCell
 {
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var screenNameAndDateLabel: UILabel!
     @IBOutlet weak var tweetTextLabel: UILabel!
-    @IBOutlet weak var replyButton: ReplyButtonLightGray!
     @IBOutlet weak var retweetButton: RetweetButtonLightGray!
     @IBOutlet weak var favoriteButton: HeartButtonLightGray!
     @IBOutlet weak var retweetsCountLabel: UILabel!
     @IBOutlet weak var favoritesCountLabel: UILabel!
+    
+    weak var delegate: TweetTableViewCellDelegate?
+    var id: Int64?
+    var screenName: String?
+    var isDummy = false
+    
+    // The integer count represented by favoritesCountLabel.
+    var favoritesCount: Int
+    {
+        get
+        {
+            let count: Int
+            if let favoritesCountLabelText = favoritesCountLabel.text
+            {
+                count = Int(favoritesCountLabelText) ?? 0
+            }
+            else
+            {
+                count = 0
+            }
+            return count
+        }
+        set
+        {
+            favoritesCountLabel.text = "\(newValue)"
+        }
+    }
+    
+    // The integer count represented by favoritesCountLabel.
+    var retweetsCount: Int
+    {
+        get
+        {
+            let count: Int
+            if let retweetsCountLabelText = retweetsCountLabel.text
+            {
+                count = Int(retweetsCountLabelText) ?? 0
+            }
+            else
+            {
+                count = 0
+            }
+            return count
+        }
+        set
+        {
+            retweetsCountLabel.text = "\(newValue)"
+        }
+    }
     
     override func awakeFromNib()
     {
@@ -28,25 +81,83 @@ class TweetTableViewCell: UITableViewCell
         profileImageView.layer.cornerRadius = 3
         profileImageView.clipsToBounds = true
     }
-
-    @IBAction func onReplyButton(_ sender: ReplyButtonLightGray)
+    
+    @IBAction func onReplyButtonValueChanged(_ sender: OnOffButton)
     {
-        // implement!!!
+        // Let the delegate handle the reply.
+        if let delegate = delegate
+        {
+            delegate.tweetTableViewCell(
+                tweetTableViewCell: self, inReplyToId: id, inReplyToScreenName: screenName)
+        }
     }
     
-    @IBAction func onRetweetButton(_ sender: RetweetButtonLightGray)
+    @IBAction func onRetweetButtonValueChanged(_ sender: OnOffButton)
     {
-        // implement!!!
+        if let twitterClient = TwitterClient.shared, let id = id, !isDummy
+        {
+            // Increment retweetsCountLabel.
+            retweetsCount = retweetsCount + 1
+            
+            twitterClient.retweet(
+                id: id,
+                success:
+                {
+                    // Success, no further action necessary.
+                    print("Retweet worked!")//!!!
+                },
+                failure:
+                { (error: Error?) in
+                    
+                    // If an error occurred, set retweetsButton and
+                    // retweetsCountLabel back to old values.
+                    DispatchQueue.main.async
+                    {
+                        self.retweetButton.isOn = !self.retweetButton.isOn
+                        self.retweetsCount = self.retweetsCount - 1
+                        print("Retweet failed! \(error?.localizedDescription)")//!!!
+                    }
+                }
+            )
+        }
     }
     
-    @IBAction func onFavoriteButton(_ sender: HeartButtonLightGray)
+    @IBAction func onFavoriteButtonValueChanged(_ sender: OnOffButton)
     {
-        // implement!!!
+        if let twitterClient = TwitterClient.shared, let id = id, !isDummy
+        {
+            // Increment favoritesCountLabel.
+            favoritesCount = favoritesCount + 1
+            
+            twitterClient.setTweetFavorite(
+                favoriteButton.isOn,
+                id: id,
+                success:
+                {
+                    // Success, no further action necessary.
+                    print("Favorite worked!")//!!!
+                },
+                failure:
+                { (error: Error?) in
+                    
+                    // If an error occurred, set favoriteButton and
+                    // favoritesCountLabel back to old values.
+                    DispatchQueue.main.async
+                    {
+                        self.favoriteButton.isOn = !self.favoriteButton.isOn
+                        self.favoritesCount = self.favoritesCount - 1
+                        print("Favorite failed! \(error?.localizedDescription)")//!!!
+                    }
+                }
+            )
+        }
     }
     
     // Set the cell contents based on the specified parameters.
-    func setData(tweet: Tweet)
+    func setData(tweet: Tweet, delegate: TweetTableViewCellDelegate)
     {
+        self.delegate = delegate
+        id = tweet.id
         if let imageUrl = tweet.user?.profileImageUrl
         {
             setImage(imageView: profileImageView, imageUrl: imageUrl)
@@ -60,28 +171,33 @@ class TweetTableViewCell: UITableViewCell
         if let screenName = tweet.user?.screenName
         {
             screenNameAndDateLabel.text = "@" + screenName + " · " + tweet.timeSinceCreatedAtText
+            self.screenName = screenName
         }
         else
         {
             screenNameAndDateLabel.text = tweet.timeSinceCreatedAtText
+            self.screenName = nil
         }
         tweetTextLabel.text = tweet.text
-        if let retweetsCount = tweet.retweetsCount, retweetsCount > 0
+        retweetButton.isOn = tweet.isRetweeted ?? false
+        if let twwetRetweetsCount = tweet.retweetsCount, twwetRetweetsCount > 0
         {
-            retweetsCountLabel.text = "\(retweetsCount)"
+            retweetsCount = twwetRetweetsCount
         }
         else
         {
             retweetsCountLabel.text = nil
         }
-        if let favoritesCount = tweet.favoritesCount, favoritesCount > 0
+        favoriteButton.isOn = tweet.isFavorited ?? false
+        if let tweetFavoritesCount = tweet.favoritesCount, tweetFavoritesCount > 0
         {
-            favoritesCountLabel.text = "\(favoritesCount)"
+            favoritesCount = tweetFavoritesCount
         }
         else
         {
             favoritesCountLabel.text = nil
         }
+        isDummy = tweet.isDummy
     }
 
     // Fade in the specified image if it is not cached, or simply update

@@ -141,24 +141,122 @@ class TwitterClient: BDBOAuth1SessionManager
     }
     
     // Get a collection of the most recent Tweets and retweets posted by the
-    // authenticating user and the users they follow.
-    func getHomeTimeLineTweets(success: @escaping ([Tweet]) -> Void, failure: @escaping (Error?) -> Void)
+    // authenticating user and the users they follow, and the max_id parameter
+    // to use in a home_timeline request to get the next set of tweets.
+    func getHomeTimelineTweets(maxId: Int64?, success: @escaping ([Tweet], Int64) -> Void, failure: @escaping (Error?) -> Void)
     {
+        var parameters: [String : AnyObject]?
+        if let maxId = maxId
+        {
+            parameters = [String : AnyObject]()
+            let maxIdNum = NSNumber(value: maxId)
+            parameters![Constants.TwitterHomeTimelineParameter.maxId] = maxIdNum as AnyObject?
+        }
+        else
+        {
+            parameters = nil
+        }
+        
         get(
             Constants.Twitter.apiHomeTimelinePath,
-            parameters: nil,
+            parameters: parameters,
             success:
             { (URLSessionDataTask, response: Any) in
                 
                 if let responseDicts = response as? [NSDictionary]
                 {
-                    let tweets = Tweet.getTweetsWithArray(responseDicts)
-                    success(tweets)
+                    let (tweets, maxId) = Tweet.getTweetsWithArray(responseDicts)
+                    success(tweets, maxId)
                 }
                 else
                 {
                     failure(nil)
                 }                
+            },
+            failure:
+            { (_: URLSessionDataTask?, error: Error) in
+                
+                failure(error)
+            }
+        )
+    }
+    
+    // Update the authenticating user's current status, also known as Tweeting.
+    func tweet(status: String, inReplyToId: Int64?, success: @escaping (Tweet) -> Void, failure: @escaping (Error?) -> Void)
+    {
+        var parameters = [String : AnyObject]()
+        parameters[Constants.TwitterStatusesUpdateParameter.status] = status as AnyObject?
+        if let inReplyToId = inReplyToId
+        {
+            let inReplyToIdNum = NSNumber(value: inReplyToId)
+            parameters[Constants.TwitterStatusesUpdateParameter.inReplyToStatusId] =
+                inReplyToIdNum as AnyObject?
+        }
+        
+        post(
+            Constants.Twitter.apiStatusesUpdate,
+            parameters: parameters,
+            success:
+            { (URLSessionDataTask, response: Any) in
+                
+                if let responseDict = response as? NSDictionary
+                {
+                    let tweet = Tweet(dictionary: responseDict)
+                    success(tweet)
+               }
+                else
+                {
+                    failure(nil)
+                }
+            },
+            failure:
+            { (_: URLSessionDataTask?, error: Error) in
+                
+                failure(error)
+            }
+        )
+    }
+    
+    // Retweets the tweet specified in the ID parameter as the authenticating
+    // user.
+    func retweet(id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
+    {
+        let urlString = Constants.Twitter.apiRetweetWithId + "/\(id).json"
+        print("Retweet: \(urlString)")//!!!
+        
+        post(
+            urlString,
+            parameters: nil,
+            success:
+            { (URLSessionDataTask, response: Any) in
+                
+                success()
+            },
+            failure:
+            { (_: URLSessionDataTask?, error: Error) in
+                
+                failure(error)
+            }
+        )
+    }
+    
+    // Favorites or unfavorites the status specified in the ID parameter as the
+    // authenticating user.
+    func setTweetFavorite(_ isFavorite: Bool, id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
+    {
+        var parameters = [String : AnyObject]()
+        let idNum = NSNumber(value: id)
+        parameters[Constants.TwitterFavoritesParameter.id] = idNum as AnyObject?
+        
+        post(
+            isFavorite ?
+                Constants.Twitter.apiFavoritesCreatePath :
+                Constants.Twitter.apiFavoritesDestroyPath,
+            parameters: parameters,
+            success:
+            { (URLSessionDataTask, response: Any) in
+                
+                success()
             },
             failure:
             { (_: URLSessionDataTask?, error: Error) in
