@@ -48,8 +48,8 @@ class TweetsViewController: UIViewController
         }
         
         // Set the left and right bar button images.
-        navigationItem.leftBarButtonItem?.image = UIImage(named: Constants.ImageName.tweeterNavBarLogout)?.withRenderingMode(.alwaysOriginal)
-        navigationItem.rightBarButtonItem?.image = UIImage(named: Constants.ImageName.tweeterNavBarCompose)?.withRenderingMode(.alwaysOriginal)
+        navigationItem.leftBarButtonItem?.image = navigationItem.leftBarButtonItem?.image?.withRenderingMode(.alwaysOriginal)
+        navigationItem.rightBarButtonItem?.image = navigationItem.rightBarButtonItem?.image?.withRenderingMode(.alwaysOriginal)
         
         // Hide the error banner.
         errorBannerView.isHidden = true
@@ -92,6 +92,20 @@ class TweetsViewController: UIViewController
                     composeViewController.delegate = self
                     composeViewController.inReplyToId = inReplyToId
                     composeViewController.inReplyToScreenName = inReplyToScreenName
+                }
+            }
+        }
+        else if segue.identifier == Constants.SegueName.view
+        {
+            // Set ViewTweetViewController tweet and delegate.
+            if let navigationController = segue.destination as? UINavigationController
+            {
+                if let viewTweetViewController = navigationController.topViewController as? ViewTweetViewController,
+                    let indexPath = tableView.indexPathForSelectedRow
+                {
+                    viewTweetViewController.tweet = tweets[indexPath.row]
+                    viewTweetViewController.composeDelegate = self
+                    viewTweetViewController.updateTweetDelegate = self
                 }
             }
         }
@@ -199,7 +213,7 @@ class TweetsViewController: UIViewController
 }
 
 // UITableView methods
-extension TweetsViewController: UITableViewDataSource
+extension TweetsViewController: UITableViewDataSource, UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
@@ -211,9 +225,15 @@ extension TweetsViewController: UITableViewDataSource
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell") as! TweetTableViewCell
         
         // Set the cell contents.
-        cell.setData(tweet: tweets[indexPath.row], delegate: self)
+        cell.setData(tweet: tweets[indexPath.row], replyDelegate: self)
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
+    {
+        // Do not leave rows selected.
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
@@ -241,10 +261,10 @@ extension TweetsViewController: UIScrollViewDelegate
     }
 }
 
-// TweetTableViewCellDelegate methods
-extension TweetsViewController: TweetTableViewCellDelegate
+// ReplyToTweetDelegate methods
+extension TweetsViewController: ReplyToTweetDelegate
 {
-    func tweetTableViewCell(tweetTableViewCell: TweetTableViewCell, inReplyToId: Int64?, inReplyToScreenName: String?)
+    func replyToTweet(inReplyToId: Int64?, inReplyToScreenName: String?)
     {
         self.inReplyToId = inReplyToId
         self.inReplyToScreenName = inReplyToScreenName
@@ -275,8 +295,6 @@ extension TweetsViewController: ComposeViewControllerDelegate
                 success:
                 { (tweet: Tweet) in
                     
-                    print("Tweet worked!")//!!!
-                    
                     // Remove the dummy tweet.
                     self.removeTweetWith(id: dummyId)
                     
@@ -291,8 +309,6 @@ extension TweetsViewController: ComposeViewControllerDelegate
                 failure:
                 { (error: Error?) in
                     
-                    print("Tweet failed! \(error?.localizedDescription)")//!!!
-
                     // An error occurred, remove the dummy tweet.
                     self.removeTweetWith(id: dummyId)
 
@@ -317,6 +333,28 @@ extension TweetsViewController: ComposeViewControllerDelegate
                 return
             }
             index = index + 1
+        }
+    }
+}
+
+
+// ReplyToTweetDelegate methods
+extension TweetsViewController: UpdateTweetDelegate
+{
+    // Update the specified tweet.
+    func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
+    {
+        for tweet in tweets
+        {
+            if tweet.id == id
+            {
+                tweet.isRetweeted = true
+                tweet.retweetsCount = retweetsCount
+                tweet.isFavorited = isFavorited
+                tweet.favoritesCount = favoritesCount
+                tableView.reloadData()
+                return
+            }
         }
     }
 }

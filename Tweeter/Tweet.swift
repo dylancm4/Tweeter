@@ -71,7 +71,7 @@ class Tweet
         isDummy = true
     }
     
-    // The string representing the time elapsed since the tweet was created.
+    // A string representing the time elapsed since the tweet was created.
     var timeSinceCreatedAtText: String
     {
         if let createdAt = createdAt
@@ -141,6 +141,33 @@ class Tweet
             {
                 return "now"
             }
+        }
+        else
+        {
+            return ""
+        }
+    }
+    
+    // A string representing date the tweet was created.
+    var createdAtDateText: String
+    {
+        if let createdAt = createdAt
+        {
+            let components : Set<Calendar.Component> = [.year, .month, .day, .hour, .minute]
+            let dateComponents = Calendar.current.dateComponents(components, from: createdAt)
+            let year = dateComponents.year!
+            let month = dateComponents.month!
+            let day = dateComponents.day!
+            var hour = dateComponents.hour!
+            let minute = dateComponents.minute!
+            let amPm = hour < 12 ? "AM" : "PM"
+            if hour > 12
+            {
+                hour = hour - 12
+            }
+            
+            return String(format: "%02d/%02d/%02d, %d:%02d ",
+                          month, day, year, hour, minute) + amPm
         }
         else
         {

@@ -22,6 +22,9 @@
 		FC69365A1DC64EED0069B7ED /* ComposeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC6936591DC64EED0069B7ED /* ComposeViewController.swift */; };
 		FC69365C1DC6EB0C0069B7ED /* OnOffButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC69365B1DC6EB0B0069B7ED /* OnOffButtons.swift */; };
 		FC99BCFE1DC56B8300A97300 /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC99BCFD1DC56B8300A97300 /* CurrentUser.swift */; };
+		FCB2DA9F1DC787260037D026 /* ViewTweetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB2DA9E1DC787260037D026 /* ViewTweetViewController.swift */; };
+		FCCE4D381DC7D69C00AEA900 /* ViewTweetDetailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCE4D371DC7D69C00AEA900 /* ViewTweetDetailTableViewCell.swift */; };
+		FCCE4D3C1DC7D6D600AEA900 /* ViewTweetButtonsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCE4D3B1DC7D6D600AEA900 /* ViewTweetButtonsTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +48,9 @@
 		FC6936591DC64EED0069B7ED /* ComposeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposeViewController.swift; sourceTree = "<group>"; };
 		FC69365B1DC6EB0B0069B7ED /* OnOffButtons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnOffButtons.swift; sourceTree = "<group>"; };
 		FC99BCFD1DC56B8300A97300 /* CurrentUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentUser.swift; sourceTree = "<group>"; };
+		FCB2DA9E1DC787260037D026 /* ViewTweetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewTweetViewController.swift; sourceTree = "<group>"; };
+		FCCE4D371DC7D69C00AEA900 /* ViewTweetDetailTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewTweetDetailTableViewCell.swift; sourceTree = "<group>"; };
+		FCCE4D3B1DC7D6D600AEA900 /* ViewTweetButtonsTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewTweetButtonsTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +132,7 @@
 				FC3EAA601DC322A900AC5AFC /* LoginViewController.swift */,
 				FC3EAA5E1DC322A100AC5AFC /* TweetsViewController.swift */,
 				FC6936591DC64EED0069B7ED /* ComposeViewController.swift */,
+				FCB2DA9E1DC787260037D026 /* ViewTweetViewController.swift */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -134,6 +141,8 @@
 			isa = PBXGroup;
 			children = (
 				FC3EAA641DC3254000AC5AFC /* TweetTableViewCell.swift */,
+				FCCE4D371DC7D69C00AEA900 /* ViewTweetDetailTableViewCell.swift */,
+				FCCE4D3B1DC7D6D600AEA900 /* ViewTweetButtonsTableViewCell.swift */,
 				FC69365B1DC6EB0B0069B7ED /* OnOffButtons.swift */,
 			);
 			name = Views;
@@ -290,6 +299,7 @@
 				FC3EAA5F1DC322A100AC5AFC /* TweetsViewController.swift in Sources */,
 				FC3EAA5D1DC3227B00AC5AFC /* TwitterClient.swift in Sources */,
 				FC3EAA5B1DC3226A00AC5AFC /* User.swift in Sources */,
+				FCCE4D3C1DC7D6D600AEA900 /* ViewTweetButtonsTableViewCell.swift in Sources */,
 				FC3EAA631DC322CA00AC5AFC /* Constants.swift in Sources */,
 				FC69365A1DC64EED0069B7ED /* ComposeViewController.swift in Sources */,
 				FC3EAA5A1DC3226A00AC5AFC /* Tweet.swift in Sources */,
@@ -297,6 +307,8 @@
 				FC99BCFE1DC56B8300A97300 /* CurrentUser.swift in Sources */,
 				FC69365C1DC6EB0C0069B7ED /* OnOffButtons.swift in Sources */,
 				FC3EAA651DC3254000AC5AFC /* TweetTableViewCell.swift in Sources */,
+				FCB2DA9F1DC787260037D026 /* ViewTweetViewController.swift in Sources */,
+				FCCE4D381DC7D69C00AEA900 /* ViewTweetDetailTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

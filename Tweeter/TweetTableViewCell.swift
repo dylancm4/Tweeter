@@ -8,9 +8,9 @@
 
 import UIKit
 
-protocol TweetTableViewCellDelegate: class
+protocol ReplyToTweetDelegate: class
 {
-    func tweetTableViewCell(tweetTableViewCell: TweetTableViewCell, inReplyToId: Int64?, inReplyToScreenName: String?)
+    func replyToTweet(inReplyToId: Int64?, inReplyToScreenName: String?)
 }
 
 class TweetTableViewCell: UITableViewCell
@@ -18,13 +18,13 @@ class TweetTableViewCell: UITableViewCell
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var screenNameAndDateLabel: UILabel!
-    @IBOutlet weak var tweetTextLabel: UILabel!
+    @IBOutlet weak var tweetTextView: UITextView!
     @IBOutlet weak var retweetButton: RetweetButtonLightGray!
     @IBOutlet weak var favoriteButton: HeartButtonLightGray!
     @IBOutlet weak var retweetsCountLabel: UILabel!
     @IBOutlet weak var favoritesCountLabel: UILabel!
     
-    weak var delegate: TweetTableViewCellDelegate?
+    weak var replyDelegate: ReplyToTweetDelegate!
     var id: Int64?
     var screenName: String?
     var isDummy = false
@@ -51,7 +51,7 @@ class TweetTableViewCell: UITableViewCell
         }
     }
     
-    // The integer count represented by favoritesCountLabel.
+    // The integer count represented by retweetsCountLabel.
     var retweetsCount: Int
     {
         get
@@ -84,17 +84,13 @@ class TweetTableViewCell: UITableViewCell
     
     @IBAction func onReplyButtonValueChanged(_ sender: OnOffButton)
     {
-        // Let the delegate handle the reply.
-        if let delegate = delegate
-        {
-            delegate.tweetTableViewCell(
-                tweetTableViewCell: self, inReplyToId: id, inReplyToScreenName: screenName)
-        }
+        // Let the replyDelegate handle the reply.
+        replyDelegate.replyToTweet(inReplyToId: id, inReplyToScreenName: screenName)
     }
     
     @IBAction func onRetweetButtonValueChanged(_ sender: OnOffButton)
     {
-        if let twitterClient = TwitterClient.shared, let id = id, !isDummy
+        if !retweetButton.isOn, let twitterClient = TwitterClient.shared, let id = id, !isDummy
         {
             // Increment retweetsCountLabel.
             retweetsCount = retweetsCount + 1
@@ -104,7 +100,6 @@ class TweetTableViewCell: UITableViewCell
                 success:
                 {
                     // Success, no further action necessary.
-                    print("Retweet worked!")//!!!
                 },
                 failure:
                 { (error: Error?) in
@@ -115,7 +110,6 @@ class TweetTableViewCell: UITableViewCell
                     {
                         self.retweetButton.isOn = !self.retweetButton.isOn
                         self.retweetsCount = self.retweetsCount - 1
-                        print("Retweet failed! \(error?.localizedDescription)")//!!!
                     }
                 }
             )
@@ -135,7 +129,6 @@ class TweetTableViewCell: UITableViewCell
                 success:
                 {
                     // Success, no further action necessary.
-                    print("Favorite worked!")//!!!
                 },
                 failure:
                 { (error: Error?) in
@@ -146,7 +139,6 @@ class TweetTableViewCell: UITableViewCell
                     {
                         self.favoriteButton.isOn = !self.favoriteButton.isOn
                         self.favoritesCount = self.favoritesCount - 1
-                        print("Favorite failed! \(error?.localizedDescription)")//!!!
                     }
                 }
             )
@@ -154,9 +146,9 @@ class TweetTableViewCell: UITableViewCell
     }
     
     // Set the cell contents based on the specified parameters.
-    func setData(tweet: Tweet, delegate: TweetTableViewCellDelegate)
+    func setData(tweet: Tweet, replyDelegate: ReplyToTweetDelegate)
     {
-        self.delegate = delegate
+        self.replyDelegate = replyDelegate
         id = tweet.id
         if let imageUrl = tweet.user?.profileImageUrl
         {
@@ -178,11 +170,11 @@ class TweetTableViewCell: UITableViewCell
             screenNameAndDateLabel.text = tweet.timeSinceCreatedAtText
             self.screenName = nil
         }
-        tweetTextLabel.text = tweet.text
+        tweetTextView.text = tweet.text
         retweetButton.isOn = tweet.isRetweeted ?? false
-        if let twwetRetweetsCount = tweet.retweetsCount, twwetRetweetsCount > 0
+        if let tweetRetweetsCount = tweet.retweetsCount, tweetRetweetsCount > 0
         {
-            retweetsCount = twwetRetweetsCount
+            retweetsCount = tweetRetweetsCount
         }
         else
         {

@@ -22,7 +22,7 @@ enum Constants
         static let apiCallbackQueryContainsOauthToken = "oauth_token"
         static let apiAccessTokenPath = "/oauth/access_token"
         static let apiAccessTokenMethod = "POST"
-        static let apiVerifyCredentialsPath = "1.1/account/verify_credentials.json"
+        static let apiVerifyCredentialsPath = "/1.1/account/verify_credentials.json"
         static let apiHomeTimelinePath = "/1.1/statuses/home_timeline.json"
         static let apiStatusesUpdate = "/1.1/statuses/update.json"
         static let apiRetweetWithId = "/1.1/statuses/retweet"
@@ -47,7 +47,7 @@ enum Constants
     
     enum TwitterStatusesUpdateParameter
     {
-        static let status = "parameters"
+        static let status = "status"
         static let inReplyToStatusId = "in_reply_to_status_id"
     }
     
@@ -72,8 +72,6 @@ enum Constants
     {
         static let tweeterNavBarTitlePortrait = "Tweeter-1DA1F2xFFFFFF-44.png"
         static let tweeterNavBarTitleLandscape = "Tweeter-1DA1F2xFFFFFF-32.png"
-        static let tweeterNavBarLogout = "Logout-1DA1F2-22"
-        static let tweeterNavBarCompose = "Compose-1DA1F2-22"
     }
     
     enum Notification
@@ -91,6 +89,8 @@ enum Constants
         static let login = "loginSegue"
         static let compose = "composeSegue"
         static let reply = "replySegue"
+        static let view = "viewSegue"
+        static let viewTweetReply = "viewTweetReplySegue"
     }
     
     enum UserDefaults

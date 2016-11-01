@@ -222,8 +222,7 @@ class TwitterClient: BDBOAuth1SessionManager
     func retweet(id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
     {
         let urlString = Constants.Twitter.apiRetweetWithId + "/\(id).json"
-        print("Retweet: \(urlString)")//!!!
-        
+
         post(
             urlString,
             parameters: nil,
