@@ -2,7 +2,7 @@
 
 Tweeter is a Twitter client app for iOS submitted as [Assignment #3](https://github.com/dylancm4/Yelp) for the CodePath October 2016 iOS bootcamp.
 
-Time spent: **39** hours
+Time spent: **48** hours
 
 ## User Stories
 
@@ -14,7 +14,7 @@ Time spent: **39** hours
 * [x] In the home timeline, user can view tweet with the user profile picture, username, tweet text, and timestamp.
 * [x] User can pull to refresh.
 * [x] User can compose a new tweet by tapping on a compose button.
-* [ ] User can tap on a tweet to view it, with controls to retweet, favorite, and reply.
+* [x] User can tap on a tweet to view it, with controls to retweet, favorite, and reply.
 
 **Optional** functionality:
 
