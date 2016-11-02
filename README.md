@@ -2,7 +2,7 @@
 
 Tweeter is a Twitter client app for iOS submitted as [Assignment #3](https://github.com/dylancm4/Yelp) for the CodePath October 2016 iOS bootcamp.
 
-Time spent: **48** hours
+Time spent: **50** hours
 
 ## User Stories
 
@@ -21,7 +21,7 @@ Time spent: **48** hours
 * [x] When composing, you should have a countdown in the upper right for the tweet limit.
 * [x] After creating a new tweet, a user should be able to view it in the timeline immediately without refetching the timeline from the network.
 * [x] Retweeting and favoriting should increment the retweet and favorite count.
-* [ ] User should be able to unretweet and should decrement the retweet count.
+* [x] User should be able to unretweet and should decrement the retweet count.
 * [x] User should be able to unfavorite and should decrement the favorite count.
 * [x] Replies should be prefixed with the username and the reply_id should be set when posting the tweet.
 * [x] User can load more tweets once they reach the bottom of the feed using infinite loading similar to the actual Twitter client.

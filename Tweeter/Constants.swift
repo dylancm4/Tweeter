@@ -26,6 +26,7 @@ enum Constants
         static let apiHomeTimelinePath = "/1.1/statuses/home_timeline.json"
         static let apiStatusesUpdate = "/1.1/statuses/update.json"
         static let apiRetweetWithId = "/1.1/statuses/retweet"
+        static let apiUnretweetWithId = "/1.1/statuses/unretweet"
         static let apiFavoritesCreatePath = "/1.1/favorites/create.json"
         static let apiFavoritesDestroyPath = "/1.1/favorites/destroy.json"
         static let dateFormat = "EEE MMM d HH:mm:ss Z y"

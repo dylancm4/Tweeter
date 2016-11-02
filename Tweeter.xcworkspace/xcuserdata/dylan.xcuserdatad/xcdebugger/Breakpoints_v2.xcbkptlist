@@ -138,12 +138,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/TweetTableViewCell.swift"
-            timestampString = "499654661.333167"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "163"
-            endingLineNumber = "163"
-            landmarkName = "setData(tweet:replyDelegate:)"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
+            landmarkName = "setData(tweet:tweetDelegate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -170,11 +170,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/TweetTableViewCell.swift"
-            timestampString = "499650787.568894"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "78"
-            endingLineNumber = "78"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
             landmarkName = "awakeFromNib()"
             landmarkType = "7">
          </BreakpointContent>
@@ -186,12 +186,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/TweetTableViewCell.swift"
-            timestampString = "499654661.333167"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "157"
-            endingLineNumber = "157"
-            landmarkName = "setData(tweet:replyDelegate:)"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
+            landmarkName = "setData(tweet:tweetDelegate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -282,12 +282,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/TweetTableViewCell.swift"
-            timestampString = "499654661.333167"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
-            landmarkName = "setData(tweet:replyDelegate:)"
+            startingLineNumber = "166"
+            endingLineNumber = "166"
+            landmarkName = "setData(tweet:tweetDelegate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -538,11 +538,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/TweetTableViewCell.swift"
-            timestampString = "499654661.333167"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "125"
-            endingLineNumber = "125"
+            startingLineNumber = "135"
+            endingLineNumber = "135"
             landmarkName = "onFavoriteButtonValueChanged(_:)"
             landmarkType = "7">
             <Locations>
@@ -744,12 +744,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/ViewTweetButtonsTableViewCell.swift"
-            timestampString = "499656937.873073"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
-            landmarkName = "setData(tweet:replyDelegate:updateTweetDelegate:)"
+            startingLineNumber = "92"
+            endingLineNumber = "92"
+            landmarkName = "setData(tweet:tweetDelegate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -760,11 +760,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/ViewTweetButtonsTableViewCell.swift"
-            timestampString = "499656937.873073"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "165"
+            endingLineNumber = "165"
             landmarkName = "onFavoritesButtonValueChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -776,11 +776,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/ViewTweetButtonsTableViewCell.swift"
-            timestampString = "499656937.873073"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "183"
-            endingLineNumber = "183"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
             landmarkName = "onFavoritesButtonValueChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -936,11 +936,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Tweeter/ViewTweetButtonsTableViewCell.swift"
-            timestampString = "499656937.873073"
+            timestampString = "499745571.357013"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "106"
-            endingLineNumber = "106"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
             landmarkName = "onReplyButtonValueChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>

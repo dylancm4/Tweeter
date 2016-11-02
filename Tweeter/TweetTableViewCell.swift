@@ -8,9 +8,10 @@
 
 import UIKit
 
-protocol ReplyToTweetDelegate: class
+protocol TweetDelegate: class
 {
     func replyToTweet(inReplyToId: Int64?, inReplyToScreenName: String?)
+    func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
 }
 
 class TweetTableViewCell: UITableViewCell
@@ -24,7 +25,7 @@ class TweetTableViewCell: UITableViewCell
     @IBOutlet weak var retweetsCountLabel: UILabel!
     @IBOutlet weak var favoritesCountLabel: UILabel!
     
-    weak var replyDelegate: ReplyToTweetDelegate!
+    weak var tweetDelegate: TweetDelegate!
     var id: Int64?
     var screenName: String?
     var isDummy = false
@@ -84,22 +85,30 @@ class TweetTableViewCell: UITableViewCell
     
     @IBAction func onReplyButtonValueChanged(_ sender: OnOffButton)
     {
-        // Let the replyDelegate handle the reply.
-        replyDelegate.replyToTweet(inReplyToId: id, inReplyToScreenName: screenName)
+        // Let the tweetDelegate handle the reply.
+        tweetDelegate.replyToTweet(inReplyToId: id, inReplyToScreenName: screenName)
     }
     
     @IBAction func onRetweetButtonValueChanged(_ sender: OnOffButton)
     {
-        if !retweetButton.isOn, let twitterClient = TwitterClient.shared, let id = id, !isDummy
+        if let twitterClient = TwitterClient.shared, let id = id, !isDummy
         {
-            // Increment retweetsCountLabel.
-            retweetsCount = retweetsCount + 1
+            // Increment or decrement retweetsCountLabel.
+            let incrementDecrement = retweetButton.isOn ? 1 : -1
+            retweetsCount = retweetsCount + incrementDecrement
             
-            twitterClient.retweet(
+            twitterClient.setRetweet(
+                retweetButton.isOn,
                 id: id,
                 success:
                 {
-                    // Success, no further action necessary.
+                    // Update our copy of the tweet.
+                    self.tweetDelegate.updateTweet(
+                        id: self.id,
+                        isRetweeted: self.retweetButton.isOn,
+                        retweetsCount: self.retweetsCount,
+                        isFavorited: self.favoriteButton.isOn,
+                        favoritesCount: self.favoritesCount)
                 },
                 failure:
                 { (error: Error?) in
@@ -109,7 +118,7 @@ class TweetTableViewCell: UITableViewCell
                     DispatchQueue.main.async
                     {
                         self.retweetButton.isOn = !self.retweetButton.isOn
-                        self.retweetsCount = self.retweetsCount - 1
+                        self.retweetsCount = self.retweetsCount - incrementDecrement
                     }
                 }
             )
@@ -120,15 +129,22 @@ class TweetTableViewCell: UITableViewCell
     {
         if let twitterClient = TwitterClient.shared, let id = id, !isDummy
         {
-            // Increment favoritesCountLabel.
-            favoritesCount = favoritesCount + 1
+            // Increment or decrement favoritesCountLabel.
+            let incrementDecrement = favoriteButton.isOn ? 1 : -1
+            favoritesCount = favoritesCount + incrementDecrement
             
             twitterClient.setTweetFavorite(
                 favoriteButton.isOn,
                 id: id,
                 success:
                 {
-                    // Success, no further action necessary.
+                    // Update our copy of the tweet.
+                    self.tweetDelegate.updateTweet(
+                        id: self.id,
+                        isRetweeted: self.retweetButton.isOn,
+                        retweetsCount: self.retweetsCount,
+                        isFavorited: self.favoriteButton.isOn,
+                        favoritesCount: self.favoritesCount)
                 },
                 failure:
                 { (error: Error?) in
@@ -138,7 +154,7 @@ class TweetTableViewCell: UITableViewCell
                     DispatchQueue.main.async
                     {
                         self.favoriteButton.isOn = !self.favoriteButton.isOn
-                        self.favoritesCount = self.favoritesCount - 1
+                        self.favoritesCount = self.favoritesCount - incrementDecrement
                     }
                 }
             )
@@ -146,9 +162,9 @@ class TweetTableViewCell: UITableViewCell
     }
     
     // Set the cell contents based on the specified parameters.
-    func setData(tweet: Tweet, replyDelegate: ReplyToTweetDelegate)
+    func setData(tweet: Tweet, tweetDelegate: TweetDelegate)
     {
-        self.replyDelegate = replyDelegate
+        self.tweetDelegate = tweetDelegate
         id = tweet.id
         if let imageUrl = tweet.user?.profileImageUrl
         {

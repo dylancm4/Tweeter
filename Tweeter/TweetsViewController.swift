@@ -105,7 +105,7 @@ class TweetsViewController: UIViewController
                 {
                     viewTweetViewController.tweet = tweets[indexPath.row]
                     viewTweetViewController.composeDelegate = self
-                    viewTweetViewController.updateTweetDelegate = self
+                    viewTweetViewController.tweetDelegate = self
                 }
             }
         }
@@ -225,7 +225,7 @@ extension TweetsViewController: UITableViewDataSource, UITableViewDelegate
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell") as! TweetTableViewCell
         
         // Set the cell contents.
-        cell.setData(tweet: tweets[indexPath.row], replyDelegate: self)
+        cell.setData(tweet: tweets[indexPath.row], tweetDelegate: self)
         
         return cell
     }
@@ -261,14 +261,36 @@ extension TweetsViewController: UIScrollViewDelegate
     }
 }
 
-// ReplyToTweetDelegate methods
-extension TweetsViewController: ReplyToTweetDelegate
+// TweetDelegate methods
+extension TweetsViewController: TweetDelegate
 {
+    // Perform a segue to the ComposeViewController to reply to the
+    // specified tweet.
     func replyToTweet(inReplyToId: Int64?, inReplyToScreenName: String?)
     {
         self.inReplyToId = inReplyToId
         self.inReplyToScreenName = inReplyToScreenName
         performSegue(withIdentifier: Constants.SegueName.reply, sender: self)
+    }
+
+    // Update our copy of the specified tweet.
+    func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
+    {
+        for tweet in tweets
+        {
+            if tweet.id == id
+            {
+                tweet.isRetweeted = isRetweeted
+                tweet.retweetsCount = retweetsCount
+                tweet.isFavorited = isFavorited
+                tweet.favoritesCount = favoritesCount
+                DispatchQueue.main.async
+                    {
+                        self.tableView.reloadData()
+                }
+                return
+            }
+        }
     }
 }
 
@@ -336,27 +358,3 @@ extension TweetsViewController: ComposeViewControllerDelegate
         }
     }
 }
-
-
-// ReplyToTweetDelegate methods
-extension TweetsViewController: UpdateTweetDelegate
-{
-    // Update the specified tweet.
-    func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
-    {
-        for tweet in tweets
-        {
-            if tweet.id == id
-            {
-                tweet.isRetweeted = true
-                tweet.retweetsCount = retweetsCount
-                tweet.isFavorited = isFavorited
-                tweet.favoritesCount = favoritesCount
-                tableView.reloadData()
-                return
-            }
-        }
-    }
-}
-
-

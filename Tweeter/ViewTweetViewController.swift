@@ -15,7 +15,7 @@ class ViewTweetViewController: UIViewController
     var tweet: Tweet?
 
     weak var composeDelegate: ComposeViewControllerDelegate!
-    weak var updateTweetDelegate: UpdateTweetDelegate!
+    weak var tweetDelegate: TweetDelegate!
     var inReplyToId: Int64?
     var inReplyToScreenName: String?
 
@@ -98,7 +98,7 @@ extension ViewTweetViewController: UITableViewDataSource, UITableViewDelegate
             let cell = tableView.dequeueReusableCell(withIdentifier: "ViewTweetButtonsCell") as! ViewTweetButtonsTableViewCell
             
             // Set the cell contents.
-            cell.setData(tweet: _tweet, replyDelegate: self, updateTweetDelegate: updateTweetDelegate)
+            cell.setData(tweet: _tweet, tweetDelegate: self)
             
             return cell
         }
@@ -111,14 +111,22 @@ extension ViewTweetViewController: UITableViewDataSource, UITableViewDelegate
     }
 }
 
-// ReplyToTweetDelegate methods
-extension ViewTweetViewController: ReplyToTweetDelegate
+// TweetDelegate methods
+extension ViewTweetViewController: TweetDelegate
 {
+    // Perform a segue to the ComposeViewController to reply to the
+    // specified tweet.
     func replyToTweet(inReplyToId: Int64?, inReplyToScreenName: String?)
     {
         self.inReplyToId = inReplyToId
         self.inReplyToScreenName = inReplyToScreenName
         performSegue(withIdentifier: Constants.SegueName.viewTweetReply, sender: self)
+    }
+
+    // Update our copy of the specified tweet.
+    func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
+    {
+        tweetDelegate.updateTweet(id: id, isRetweeted: isRetweeted, retweetsCount: retweetsCount, isFavorited: isFavorited, favoritesCount: favoritesCount)
     }
 }
 

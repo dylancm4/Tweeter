@@ -217,12 +217,12 @@ class TwitterClient: BDBOAuth1SessionManager
         )
     }
     
-    // Retweets the tweet specified in the ID parameter as the authenticating
-    // user.
-    func retweet(id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
+    // Retweets or unretweets the tweet specified in the ID parameter as
+    // the authenticating user.
+    func setRetweet(_ shouldRetweet: Bool, id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
     {
-        let urlString = Constants.Twitter.apiRetweetWithId + "/\(id).json"
-
+        let urlString =
+            (shouldRetweet ? Constants.Twitter.apiRetweetWithId : Constants.Twitter.apiUnretweetWithId) + "/\(id).json"
         post(
             urlString,
             parameters: nil,
@@ -241,14 +241,14 @@ class TwitterClient: BDBOAuth1SessionManager
     
     // Favorites or unfavorites the status specified in the ID parameter as the
     // authenticating user.
-    func setTweetFavorite(_ isFavorite: Bool, id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
+    func setTweetFavorite(_ shouldFavorite: Bool, id: Int64, success: @escaping () -> Void, failure: @escaping (Error?) -> Void)
     {
         var parameters = [String : AnyObject]()
         let idNum = NSNumber(value: id)
         parameters[Constants.TwitterFavoritesParameter.id] = idNum as AnyObject?
         
         post(
-            isFavorite ?
+            shouldFavorite ?
                 Constants.Twitter.apiFavoritesCreatePath :
                 Constants.Twitter.apiFavoritesDestroyPath,
             parameters: parameters,
