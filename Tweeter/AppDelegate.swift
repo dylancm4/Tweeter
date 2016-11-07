@@ -9,8 +9,8 @@
 import UIKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
+class AppDelegate: UIResponder, UIApplicationDelegate
+{
     var window: UIWindow?
     let storyboard = UIStoryboard(name: Constants.StoryboardName.main, bundle: nil)
 
@@ -27,9 +27,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If the current user is saved in UserDefaults, skip the login screen.
         if (CurrentUser.shared.isLoggedIn())
         {
-            let tweetsNavigationController =
-                storyboard.instantiateViewController(withIdentifier: "TweetsNavigationController")
-            window?.rootViewController = tweetsNavigationController
+            // Set up the hamburger view controller.
+            let hamburgerViewController =
+                storyboard.instantiateViewController(withIdentifier: "HamburgerViewController") as! HamburgerViewController
+            let menuViewController =
+                storyboard.instantiateViewController(withIdentifier: "MenuViewController") as! MenuViewController
+            menuViewController.hamburgerViewController = hamburgerViewController
+            hamburgerViewController.menuViewController = menuViewController
+            window?.rootViewController = hamburgerViewController
         }
         
         // When the user logs out, return to the LoginViewController.

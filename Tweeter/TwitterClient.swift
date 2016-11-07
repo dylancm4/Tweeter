@@ -143,14 +143,14 @@ class TwitterClient: BDBOAuth1SessionManager
     // Get a collection of the most recent Tweets and retweets posted by the
     // authenticating user and the users they follow, and the max_id parameter
     // to use in a home_timeline request to get the next set of tweets.
-    func getHomeTimelineTweets(maxId: Int64?, success: @escaping ([Tweet], Int64) -> Void, failure: @escaping (Error?) -> Void)
+    func getHomeTimelineTweets(maxId: Int64?, success: @escaping ([Tweet], Int64?) -> Void, failure: @escaping (Error?) -> Void)
     {
         var parameters: [String : AnyObject]?
         if let maxId = maxId
         {
             parameters = [String : AnyObject]()
             let maxIdNum = NSNumber(value: maxId)
-            parameters![Constants.TwitterHomeTimelineParameter.maxId] = maxIdNum as AnyObject?
+            parameters![Constants.TwitterTimelineParameter.maxId] = maxIdNum as AnyObject?
         }
         else
         {
@@ -165,13 +165,95 @@ class TwitterClient: BDBOAuth1SessionManager
                 
                 if let responseDicts = response as? [NSDictionary]
                 {
-                    let (tweets, maxId) = Tweet.getTweetsWithArray(responseDicts)
+                    let (tweets, maxId) =
+                        Tweet.getTweetsWithArray(responseDicts, lastMaxId: maxId)
                     success(tweets, maxId)
                 }
                 else
                 {
                     failure(nil)
                 }                
+            },
+            failure:
+            { (_: URLSessionDataTask?, error: Error) in
+                
+                failure(error)
+            }
+        )
+    }
+    
+    // Get a collection of the most recent mentions (tweets containing a
+    // user's @screen_name) for the authenticating user, and the max_id
+    // parameter to use in a mentions_timeline request to get the next set
+    // of tweets.
+    func getMentionsTimelineTweets(maxId: Int64?, success: @escaping ([Tweet], Int64?) -> Void, failure: @escaping (Error?) -> Void)
+    {
+        var parameters: [String : AnyObject]?
+        if let maxId = maxId
+        {
+            parameters = [String : AnyObject]()
+            let maxIdNum = NSNumber(value: maxId)
+            parameters![Constants.TwitterTimelineParameter.maxId] = maxIdNum as AnyObject?
+        }
+        else
+        {
+            parameters = nil
+        }
+        
+        get(
+            Constants.Twitter.apiMentionsTimelinePath,
+            parameters: parameters,
+            success:
+            { (URLSessionDataTask, response: Any) in
+                
+                if let responseDicts = response as? [NSDictionary]
+                {
+                    let (tweets, maxId) =
+                        Tweet.getTweetsWithArray(responseDicts, lastMaxId: maxId)
+                    success(tweets, maxId)
+                }
+                else
+                {
+                    failure(nil)
+                }
+            },
+            failure:
+            { (_: URLSessionDataTask?, error: Error) in
+                
+                failure(error)
+            }
+        )
+    }
+    
+    // Get a collection of the most recent Tweets posted by the user
+    // indicated by the specified screen_name, and the max_id parameter to
+    // use in a user_timeline request to get the next set of tweets.
+    func getUserTimelineTweets(screenName: String, maxId: Int64?, success: @escaping ([Tweet], Int64?) -> Void, failure: @escaping (Error?) -> Void)
+    {
+        var parameters = [String : AnyObject]()
+        parameters[Constants.TwitterTimelineParameter.screenName] = screenName as AnyObject?
+        if let maxId = maxId
+        {
+            let maxIdNum = NSNumber(value: maxId)
+            parameters[Constants.TwitterTimelineParameter.maxId] = maxIdNum as AnyObject?
+        }
+        
+        get(
+            Constants.Twitter.apiUserTimelinePath,
+            parameters: parameters,
+            success:
+            { (URLSessionDataTask, response: Any) in
+                
+                if let responseDicts = response as? [NSDictionary]
+                {
+                    let (tweets, maxId) =
+                        Tweet.getTweetsWithArray(responseDicts, lastMaxId: maxId)
+                    success(tweets, maxId)
+                }
+                else
+                {
+                    failure(nil)
+                }
             },
             failure:
             { (_: URLSessionDataTask?, error: Error) in

@@ -6,7 +6,7 @@
 //  Copyright © 2016 Dylan Miller. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 // Represents a single tweet.
 class Tweet
@@ -19,11 +19,12 @@ class Tweet
     var isRetweeted: Bool?
     var retweetsCount: Int?
     var favoritesCount: Int?
+    var mediaImage: UIImage?
     var isDummy: Bool
 
     init(dictionary: NSDictionary)
     {
-        if let idNumber = dictionary[Constants.TwitterHomeTimelineDictKey.id] as? NSNumber
+        if let idNumber = dictionary[Constants.TwitterTimelineDictKey.id] as? NSNumber
         {
            id = idNumber.int64Value
         }
@@ -31,7 +32,7 @@ class Tweet
         {
             id = nil
         }
-        if let userDict = dictionary[Constants.TwitterHomeTimelineDictKey.user] as? NSDictionary
+        if let userDict = dictionary[Constants.TwitterTimelineDictKey.user] as? NSDictionary
         {
             user = User(dictionary: userDict)
         }
@@ -39,8 +40,8 @@ class Tweet
         {
             user = nil
         }
-        text = dictionary[Constants.TwitterHomeTimelineDictKey.text] as? String
-        if let createdAtString = dictionary[Constants.TwitterHomeTimelineDictKey.createdAt] as? String
+        text = dictionary[Constants.TwitterTimelineDictKey.text] as? String
+        if let createdAtString = dictionary[Constants.TwitterTimelineDictKey.createdAt] as? String
         {
             let formatter = DateFormatter()
             formatter.dateFormat = Constants.Twitter.dateFormat
@@ -50,11 +51,82 @@ class Tweet
         {
             createdAt = nil
         }
-        isFavorited = dictionary[Constants.TwitterHomeTimelineDictKey.favorited] as? Bool
-        isRetweeted = dictionary[Constants.TwitterHomeTimelineDictKey.retweeted] as? Bool
-        retweetsCount = dictionary[Constants.TwitterHomeTimelineDictKey.retweetsCount] as? Int
-        favoritesCount = dictionary[Constants.TwitterHomeTimelineDictKey.favoritesCount] as? Int
+        isFavorited = dictionary[Constants.TwitterTimelineDictKey.favorited] as? Bool
+        isRetweeted = dictionary[Constants.TwitterTimelineDictKey.retweeted] as? Bool
+        retweetsCount = dictionary[Constants.TwitterTimelineDictKey.retweetsCount] as? Int
+        favoritesCount = dictionary[Constants.TwitterTimelineDictKey.favoritesCount] as? Int
+        mediaImage = nil
         isDummy = false
+        
+        // Load the media image in this class so that the image view
+        // constraints can be adjusted before setting its image. Note
+        // that we wait for the image to be loaded before returning,
+        // otherwise the tweets table view could load before the images
+        // have loaded, and the constraints will not be set correctly.
+        // There are likely better ways of solving this problem than
+        // using a semaphore here.
+        if let entitiesDict = dictionary[Constants.TwitterTimelineDictKey.entities] as? NSDictionary,
+            let mediaArray = entitiesDict[Constants.TwitterTimelineDictKey.Entities.media] as? NSArray,
+            let mediaDict = mediaArray[0] as? NSDictionary,
+            let mediaUrlString =
+                mediaDict[Constants.TwitterTimelineDictKey.Entities.Media.mediaUrlHttps] as? String
+        {
+            if let mediaImageUrl = URL(string: mediaUrlString)
+            {
+                let semaphore = DispatchSemaphore(value: 0)
+                let task = URLSession.shared.dataTask(
+                    with: mediaImageUrl,
+                    completionHandler:
+                    { (data: Data?, response: URLResponse?, error: Error?) in
+                        
+                        if error == nil,
+                            let statusCode = (response as? HTTPURLResponse)?.statusCode,
+                            statusCode >= 200 && statusCode <= 299,
+                            let data = data,
+                            let image = UIImage(data: data)
+                        {
+                            self.mediaImage = image
+                        }
+                        semaphore.signal()
+                    }
+                )
+                task.resume()
+                let _ = semaphore.wait(timeout: .distantFuture)
+            }
+        }
+        if mediaImage == nil
+        {
+            if let retweetedStatusDict = dictionary[Constants.TwitterTimelineDictKey.retweetedStatus] as? NSDictionary,
+                let entitiesDict = retweetedStatusDict[Constants.TwitterTimelineDictKey.entities] as? NSDictionary,
+                let mediaArray = entitiesDict[Constants.TwitterTimelineDictKey.Entities.media] as? NSArray,
+                let mediaDict = mediaArray[0] as? NSDictionary,
+                let mediaUrlString =
+                mediaDict[Constants.TwitterTimelineDictKey.Entities.Media.mediaUrlHttps] as? String
+            {
+                if let mediaImageUrl = URL(string: mediaUrlString)
+                {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    let task = URLSession.shared.dataTask(
+                        with: mediaImageUrl,
+                        completionHandler:
+                        { (data: Data?, response: URLResponse?, error: Error?) in
+                            
+                            if error == nil,
+                                let statusCode = (response as? HTTPURLResponse)?.statusCode,
+                                statusCode >= 200 && statusCode <= 299,
+                                let data = data,
+                                let image = UIImage(data: data)
+                            {
+                                self.mediaImage = image
+                            }
+                            semaphore.signal()
+                    }
+                    )
+                    task.resume()
+                    let _ = semaphore.wait(timeout: .distantFuture)
+                }
+            }
+        }
     }
     
     // For dummy temporary Tweets which are created locally.
@@ -166,7 +238,7 @@ class Tweet
                 hour = hour - 12
             }
             
-            return String(format: "%02d/%02d/%02d, %d:%02d ",
+            return String(format: "%d/%d/%02d, %d:%02d ",
                           month, day, year, hour, minute) + amPm
         }
         else
@@ -178,9 +250,15 @@ class Tweet
     // Returns an array of Tweet objects based on the specified Twitter
     // dictionary. Also returns the max_id parameter to use in a
     // home_timeline request to get the next set of tweets.
-    class func getTweetsWithArray(_ dictionaries: [NSDictionary]) -> ([Tweet], Int64)
+    class func getTweetsWithArray(_ dictionaries: [NSDictionary], lastMaxId: Int64?) -> ([Tweet], Int64?)
     {
         var tweets = [Tweet]()
+        if dictionaries.count == 0
+        {
+            // Keep the same max_id if there are no more tweets.
+            return (tweets, lastMaxId)
+        }
+        
         var lowestId = Int64.max
         for dictionary in dictionaries
         {

@@ -1,6 +1,53 @@
-# Tweeter
 
-Tweeter is a Twitter client app for iOS submitted as [Assignment #3](https://github.com/dylancm4/Yelp) for the CodePath October 2016 iOS bootcamp.
+# Tweeter, version 2.0 (Week 4 Project: Twitter Redux)
+
+Tweeter is a Twitter client app for iOS submitted as [Assignment #4](https://github.com/dylancm4/Tweeter) for the CodePath October 2016 iOS bootcamp.
+
+Time spent: **35** hours
+
+## User Stories
+
+**Required** functionality:
+
+Hamburger menu:
+* [x] Dragging anywhere in the view should reveal the menu.
+* [x] The menu should include links to your profile, the home timeline, and the mentions view.
+* [x] The menu can look similar to the example menu or feel free to take liberty with the UI.
+
+Profile page:
+* [x] Contains the user header view.
+* [x] Contains a section with the users basic stats: # tweets, # following, # followers.
+* [x] Shows the user timeline.
+
+Home timeline:
+* [x] Tapping on a user image should bring up that user's profile page
+
+**Optional** functionality:
+
+Profile page:
+* [ ] Implement the paging view for the user description.
+* [ ] As the paging view moves, increase the opacity of the background screen.
+* [x] Pulling down the profile page should blur and resize the header image.
+
+Account switching:
+* [ ] Long press on tab bar to bring up Account view with animation.
+* [ ] Tap account to switch to.
+* [ ] Include a plus button to add an account.
+* [ ] Swipe to delete an account.
+
+**Additional** functionality:
+* [x] Display media images for tweets.
+
+## Walkthrough
+
+![Video Walkthrough](TweeterDemo2.gif)
+
+GIF created with [LiceCap](http://www.cockos.com/licecap/).
+
+
+# Tweeter, version 1.0 (Week 3 Project: Simple Twitter Client)
+
+Tweeter is a Twitter client app for iOS submitted as [Assignment #3](https://github.com/dylancm4/Tweeter) for the CodePath October 2016 iOS bootcamp.
 
 Time spent: **50** hours
 
@@ -45,6 +92,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 * AFNetworking
 * BDBOAuth1Manager
 * MBProgressHUD
+* FXBlurView
 
 ## License
 

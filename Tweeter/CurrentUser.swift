@@ -40,7 +40,7 @@ class CurrentUser
         }
     }
     
-    // Logout of Twitter
+    // Logout of Twitter, and post notification that user did log out.
     func logout()
     {
         if let twitterClient = TwitterClient.shared
@@ -49,6 +49,10 @@ class CurrentUser
             
             // Reset the current user.
             user = nil
+
+            NotificationCenter.default.post(
+                name: NSNotification.Name(Constants.Notification.userDidLogout),
+                object: nil)
         }
     }
     

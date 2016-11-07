@@ -1,18 +1,18 @@
 //
-//  TweetsViewController.swift
+//  MentionsViewController.swift
 //  Tweeter
 //
-//  Created by Dylan Miller on 10/27/16.
+//  Created by Dylan Miller on 11/4/16.
 //  Copyright © 2016 Dylan Miller. All rights reserved.
 //
 
 import UIKit
 
-class TweetsViewController: TimelineViewControllerBase
+class MentionsViewController: TimelineViewControllerBase
 {
     @IBOutlet weak var tweetsTableView: UITableView!
     @IBOutlet weak var tweetsErrorBannerView: UIView!
-    
+
     override var tableView: UITableView!
     {
         return tweetsTableView
@@ -23,31 +23,15 @@ class TweetsViewController: TimelineViewControllerBase
     }
     override var composeDelegate: ComposeViewControllerDelegate!
     {
-        return self
+        return tweetsViewController
     }
-    
-    var maxId: Int64?
 
-    deinit
-    {
-        // Remove all of this object's observer entries.
-        NotificationCenter.default.removeObserver(self)
-    }
+    var tweetsViewController: TweetsViewController!
+    var maxId: Int64?
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        
-        // Set the Tweeter logo as the navigation bar title.
-        setNavigationBarTitleImage()
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name.UIDeviceOrientationDidChange,
-            object: nil,
-            queue: OperationQueue.main)
-        { (Notification) in
-            
-            self.setNavigationBarTitleImage()
-        }
     }
     
     // When the menu button is pressed, post notification to open/close
@@ -59,38 +43,15 @@ class TweetsViewController: TimelineViewControllerBase
             object: nil)
     }
     
-    // Set the Tweeter logo as the navigation bar title.
-    func setNavigationBarTitleImage()
-    {
-        if let navigationController = self.navigationController
-        {
-            let tweeterImageSize = navigationController.navigationBar.bounds.height
-            let tweeterImageName: String
-            if UIDeviceOrientationIsPortrait(UIDevice.current.orientation)
-            {
-                tweeterImageName = Constants.ImageName.tweeterNavBarTitlePortrait
-            }
-            else
-            {
-                tweeterImageName = Constants.ImageName.tweeterNavBarTitleLandscape
-            }
-            let tweeterImageView = UIImageView(
-                frame: CGRect(x: 0, y: 0, width: tweeterImageSize, height: tweeterImageSize))
-            tweeterImageView.contentMode = .scaleAspectFit
-            tweeterImageView.image = UIImage(named: tweeterImageName)
-            self.navigationItem.titleView = tweeterImageView
-        }
-    }
-    
-    // Get a collection of the most recent Tweets and retweets posted by the
-    // authenticating user and the users they follow.
+    // Get a collection of the most recent mentions (tweets containing a
+    // user's @screen_name) for the authenticating user.
     override func getTimelineTweets(refreshControl: UIRefreshControl? = nil)
     {
         if let twitterClient = TwitterClient.shared
         {
             willRequest()
             
-            twitterClient.getHomeTimelineTweets(
+            twitterClient.getMentionsTimelineTweets(
                 maxId: scrollLoadingData ? maxId : nil,
                 success:
                 { (tweets: [Tweet], nextMaxId: Int64?) in
@@ -111,7 +72,7 @@ class TweetsViewController: TimelineViewControllerBase
                     self.maxId = nextMaxId
                     
                     self.requestDidSucceed(true, refreshControl: refreshControl)
-
+                    
                     if shouldReloadData
                     {
                         DispatchQueue.main.async
@@ -129,3 +90,4 @@ class TweetsViewController: TimelineViewControllerBase
         }
     }
 }
+

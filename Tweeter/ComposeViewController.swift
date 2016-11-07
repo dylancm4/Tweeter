@@ -152,7 +152,9 @@ class ComposeViewController: UIViewController, UITextViewDelegate
                     
                     DispatchQueue.main.async
                     {
-                        leftBarButtonItem.image = image.withRenderingMode(.alwaysOriginal)
+                        let scaledImage = self.resizeImage(
+                            image: image, scaledToSize: CGSize(width: 30, height: 30))
+                        leftBarButtonItem.image = scaledImage.withRenderingMode(.alwaysOriginal)
                     }
                 },
                 failure:
@@ -178,5 +180,15 @@ class ComposeViewController: UIViewController, UITextViewDelegate
             }
         }
         return 0
+    }
+    
+    // Scale the specified image.
+    func resizeImage(image: UIImage, scaledToSize newSize: CGSize) -> UIImage
+    {
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0);
+        image.draw(in: CGRect(origin: CGPoint(x: 0,y :0), size: CGSize(width: newSize.width, height: newSize.height)))
+        let newImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return newImage
     }
 }

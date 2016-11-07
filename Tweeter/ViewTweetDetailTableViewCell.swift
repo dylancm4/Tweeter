@@ -15,7 +15,23 @@ class ViewTweetDetailTableViewCell: UITableViewCell
     @IBOutlet weak var screenNameLabel: UILabel!
     @IBOutlet weak var tweetTextView: UITextView!
     @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var mediaImageView: UIImageView!
 
+    var mediaImageViewAspectConstraint : NSLayoutConstraint?
+    {
+        didSet
+        {
+            if let oldAspectConstraint = oldValue
+            {
+                mediaImageView.removeConstraint(oldAspectConstraint)
+            }
+            if let aspectConstraint = mediaImageViewAspectConstraint
+            {
+                mediaImageView.addConstraint(aspectConstraint)
+            }
+        }
+    }
+    
     override func awakeFromNib()
     {
         super.awakeFromNib()
@@ -23,6 +39,10 @@ class ViewTweetDetailTableViewCell: UITableViewCell
         // Initialization code
         profileImageView.layer.cornerRadius = 3
         profileImageView.clipsToBounds = true
+
+        // Do not round corners on mediaImageView.
+        //mediaImageView.layer.cornerRadius = 3
+        //mediaImageView.clipsToBounds = true
     }
     
     // Set the cell contents based on the specified parameters.
@@ -46,6 +66,36 @@ class ViewTweetDetailTableViewCell: UITableViewCell
             screenNameLabel.text = nil
         }
         tweetTextView.text = tweet.text
+        if let mediaImage = tweet.mediaImage
+        {
+            // Create mediaImageView aspect ratio constraint to match
+            // image aspect ratio.
+            let aspect: CGFloat = mediaImage.size.width / mediaImage.size.height
+            mediaImageViewAspectConstraint = NSLayoutConstraint(
+                item: mediaImageView,
+                attribute: NSLayoutAttribute.width,
+                relatedBy: NSLayoutRelation.equal,
+                toItem: mediaImageView,
+                attribute: NSLayoutAttribute.height,
+                multiplier: aspect,
+                constant: 0.0)
+            mediaImageView.image = mediaImage
+        }
+        else
+        {
+            // No image, create mediaImageView height constraint of 0 so
+            // that it has no effect on auto layout.
+            mediaImageViewAspectConstraint = NSLayoutConstraint(
+                item: mediaImageView,
+                attribute: NSLayoutAttribute.height,
+                relatedBy: NSLayoutRelation.equal,
+                toItem: nil,
+                attribute: NSLayoutAttribute.notAnAttribute,
+                multiplier: 1,
+                constant: 0)
+            
+            mediaImageView.image = nil
+        }
         dateLabel.text = tweet.createdAtDateText
     }
 
@@ -62,33 +112,33 @@ class ViewTweetDetailTableViewCell: UITableViewCell
             { (request: URLRequest, response: HTTPURLResponse?, image: UIImage) in
                 
                 DispatchQueue.main.async
+                {
+                    let imageIsCached = response == nil
+                    if !imageIsCached
                     {
-                        let imageIsCached = response == nil
-                        if !imageIsCached
-                        {
-                            imageView.alpha = 0.0
-                            imageView.image = image
-                            UIView.animate(
-                                withDuration: 0.3,
-                                animations:
-                                { () -> Void in
-                                    
-                                    imageView.alpha = 1.0
-                                }
-                            )
-                        }
-                        else
-                        {
-                            imageView.image = image
-                        }
+                        imageView.alpha = 0.0
+                        imageView.image = image
+                        UIView.animate(
+                            withDuration: 0.3,
+                            animations:
+                            { () -> Void in
+                                
+                                imageView.alpha = 1.0
+                            }
+                        )
+                    }
+                    else
+                    {
+                        imageView.image = image
+                    }
                 }
             },
             failure:
             { (request: URLRequest, response: HTTPURLResponse?, error: Error) in
                 
                 DispatchQueue.main.async
-                    {
-                        imageView.image = nil
+                {
+                    imageView.image = nil
                 }
             }
         )

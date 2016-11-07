@@ -53,6 +53,21 @@ class LoginViewController: UIViewController
         )
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if segue.identifier == Constants.SegueName.login
+        {
+            // Set up the hamburger view controller.
+            if let hamburgerViewController = segue.destination as? HamburgerViewController
+            {
+                let menuViewController =
+                    storyboard?.instantiateViewController(withIdentifier: "MenuViewController") as! MenuViewController
+                menuViewController.hamburgerViewController = hamburgerViewController
+                hamburgerViewController.menuViewController = menuViewController
+            }
+        }
+    }
+    
     // Show or hide the error banner based on success or failure. Hide the
     // progress HUD.
     func requestDidSucceed(_ success: Bool)

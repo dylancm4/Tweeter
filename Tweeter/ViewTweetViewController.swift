@@ -18,6 +18,7 @@ class ViewTweetViewController: UIViewController
     weak var tweetDelegate: TweetDelegate!
     var inReplyToId: Int64?
     var inReplyToScreenName: String?
+    var profileSegueUser: User?
 
     enum Row: Int
     {
@@ -40,23 +41,38 @@ class ViewTweetViewController: UIViewController
             navigationController.navigationBar.barTintColor = UIColor.white
         }
         
-        // Set the left and right bar button images.
+        // Render the bar button images using the correct color.
         navigationItem.leftBarButtonItem?.image = navigationItem.leftBarButtonItem?.image?.withRenderingMode(.alwaysOriginal)
         navigationItem.rightBarButtonItem?.image = navigationItem.rightBarButtonItem?.image?.withRenderingMode(.alwaysOriginal)
 
         // Set up the tableView.
         tableView.estimatedRowHeight = 143
         tableView.rowHeight = UITableViewAutomaticDimension
-}
+    }
     
     @IBAction func onBackButton(_ sender: AnyObject)
     {
         dismiss(animated: true, completion: nil)
     }
     
+    @IBAction func onProfileImageViewTap(_ sender: UITapGestureRecognizer)
+    {
+        if sender.state == .ended
+        {
+            if let user = tweet?.user
+            {
+                // Since the gesture recogizer code is here rather than in
+                // the cell class, we call viewProfile() on this calss. In the
+                // cell code, the call would be made on its tweetDelegate,
+                // which is this class.
+                viewProfile(user: user)
+            }
+        }
+    }
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?)
     {
-        if segue.identifier == Constants.SegueName.viewTweetReply
+        if segue.identifier == Constants.SegueName.reply
         {
             // Set self as the ComposeViewController delegate.
             if let navigationController = segue.destination as? UINavigationController
@@ -66,6 +82,17 @@ class ViewTweetViewController: UIViewController
                     composeViewController.delegate = composeDelegate
                     composeViewController.inReplyToId = inReplyToId
                     composeViewController.inReplyToScreenName = inReplyToScreenName
+                }
+            }
+        }
+        else if segue.identifier == Constants.SegueName.profile
+        {
+            // Set ProfileViewController user.
+            if let navigationController = segue.destination as? UINavigationController
+            {
+                if let profileViewController = navigationController.topViewController as? ProfileViewController
+                {
+                    profileViewController.user = profileSegueUser
                 }
             }
         }
@@ -120,13 +147,21 @@ extension ViewTweetViewController: TweetDelegate
     {
         self.inReplyToId = inReplyToId
         self.inReplyToScreenName = inReplyToScreenName
-        performSegue(withIdentifier: Constants.SegueName.viewTweetReply, sender: self)
+        performSegue(withIdentifier: Constants.SegueName.reply, sender: self)
     }
 
     // Update our copy of the specified tweet.
     func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
     {
         tweetDelegate.updateTweet(id: id, isRetweeted: isRetweeted, retweetsCount: retweetsCount, isFavorited: isFavorited, favoritesCount: favoritesCount)
+    }
+    
+    // Perform a segue to the ProfileViewController to view the specified
+    // user profile.
+    func viewProfile(user: User)
+    {
+        profileSegueUser = user
+        performSegue(withIdentifier: Constants.SegueName.profile, sender: self)
     }
 }
 

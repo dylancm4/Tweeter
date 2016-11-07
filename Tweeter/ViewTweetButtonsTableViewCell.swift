@@ -38,7 +38,7 @@ class ViewTweetButtonsTableViewCell: UITableViewCell
         }
         set
         {
-            retweetsCountLabel.text = "\(newValue)"
+            retweetsCountLabel.text = newValue > 0 ? "\(newValue)" : nil
         }
     }
     
@@ -60,7 +60,7 @@ class ViewTweetButtonsTableViewCell: UITableViewCell
         }
         set
         {
-            favoritesCountLabel.text = "\(newValue)"
+            favoritesCountLabel.text = newValue > 0 ? "\(newValue)" : nil
         }
     }
     

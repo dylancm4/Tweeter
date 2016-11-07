@@ -2,7 +2,7 @@
 //  TweetTableViewCell.swift
 //  Tweeter
 //
-//  Created by Dylan Miller on 10/27/16.
+//  Created by Dylan Miller on 11/5/16.
 //  Copyright © 2016 Dylan Miller. All rights reserved.
 //
 
@@ -12,6 +12,7 @@ protocol TweetDelegate: class
 {
     func replyToTweet(inReplyToId: Int64?, inReplyToScreenName: String?)
     func updateTweet(id: Int64?, isRetweeted: Bool, retweetsCount: Int, isFavorited: Bool, favoritesCount: Int)
+    func viewProfile(user: User)
 }
 
 class TweetTableViewCell: UITableViewCell
@@ -24,11 +25,27 @@ class TweetTableViewCell: UITableViewCell
     @IBOutlet weak var favoriteButton: HeartButtonLightGray!
     @IBOutlet weak var retweetsCountLabel: UILabel!
     @IBOutlet weak var favoritesCountLabel: UILabel!
+    @IBOutlet weak var mediaImageView: UIImageView!
     
     weak var tweetDelegate: TweetDelegate!
     var id: Int64?
-    var screenName: String?
+    var user: User?
     var isDummy = false
+    
+    var mediaImageViewAspectConstraint : NSLayoutConstraint?
+    {
+        didSet
+        {
+            if let oldAspectConstraint = oldValue
+            {
+                mediaImageView.removeConstraint(oldAspectConstraint)
+            }
+            if let aspectConstraint = mediaImageViewAspectConstraint
+            {
+                mediaImageView.addConstraint(aspectConstraint)
+            }
+        }
+    }
     
     // The integer count represented by favoritesCountLabel.
     var favoritesCount: Int
@@ -48,7 +65,7 @@ class TweetTableViewCell: UITableViewCell
         }
         set
         {
-            favoritesCountLabel.text = "\(newValue)"
+            favoritesCountLabel.text = newValue > 0 ? "\(newValue)" : nil
         }
     }
     
@@ -70,23 +87,36 @@ class TweetTableViewCell: UITableViewCell
         }
         set
         {
-            retweetsCountLabel.text = "\(newValue)"
+            retweetsCountLabel.text = newValue > 0 ? "\(newValue)" : nil
         }
     }
     
     override func awakeFromNib()
     {
         super.awakeFromNib()
-
+        
         // Initialization code
         profileImageView.layer.cornerRadius = 3
         profileImageView.clipsToBounds = true
+
+        mediaImageView.layer.cornerRadius = 3
+        mediaImageView.clipsToBounds = true
+        
+        // Add the gesture recogizer programatically, since the following
+        // error occurs otherwise: "invalid nib registered for identifier
+        // (TweetCell) - nib must contain exactly one top level object which
+        // must be a UITableViewCell instance."
+        let tapGestureRecognizer =
+            UITapGestureRecognizer(target: self, action: #selector(onProfileImageViewTap(_:)))
+        tapGestureRecognizer.cancelsTouchesInView = true
+        tapGestureRecognizer.numberOfTapsRequired = 1
+        profileImageView.addGestureRecognizer(tapGestureRecognizer)
     }
     
     @IBAction func onReplyButtonValueChanged(_ sender: OnOffButton)
     {
         // Let the tweetDelegate handle the reply.
-        tweetDelegate.replyToTweet(inReplyToId: id, inReplyToScreenName: screenName)
+        tweetDelegate.replyToTweet(inReplyToId: id, inReplyToScreenName: user?.screenName)
     }
     
     @IBAction func onRetweetButtonValueChanged(_ sender: OnOffButton)
@@ -161,14 +191,26 @@ class TweetTableViewCell: UITableViewCell
         }
     }
     
+    @IBAction func onProfileImageViewTap(_ sender: UITapGestureRecognizer)
+    {
+        if sender.state == .ended
+        {
+            if let user = user
+            {
+                tweetDelegate.viewProfile(user: user)
+            }
+        }
+    }
+    
     // Set the cell contents based on the specified parameters.
     func setData(tweet: Tweet, tweetDelegate: TweetDelegate)
     {
         self.tweetDelegate = tweetDelegate
         id = tweet.id
-        if let imageUrl = tweet.user?.profileImageUrl
+        user = tweet.user
+        if let profileImageUrl = tweet.user?.profileImageUrl
         {
-            setImage(imageView: profileImageView, imageUrl: imageUrl)
+            setImage(imageView: profileImageView, imageUrl: profileImageUrl)
         }
         else
         {
@@ -179,12 +221,10 @@ class TweetTableViewCell: UITableViewCell
         if let screenName = tweet.user?.screenName
         {
             screenNameAndDateLabel.text = "@" + screenName + " · " + tweet.timeSinceCreatedAtText
-            self.screenName = screenName
         }
         else
         {
             screenNameAndDateLabel.text = tweet.timeSinceCreatedAtText
-            self.screenName = nil
         }
         tweetTextView.text = tweet.text
         retweetButton.isOn = tweet.isRetweeted ?? false
@@ -205,9 +245,39 @@ class TweetTableViewCell: UITableViewCell
         {
             favoritesCountLabel.text = nil
         }
+        if let mediaImage = tweet.mediaImage
+        {
+            // Create mediaImageView aspect ratio constraint to match
+            // image aspect ratio.
+            let aspect: CGFloat = mediaImage.size.width / mediaImage.size.height
+            mediaImageViewAspectConstraint = NSLayoutConstraint(
+                item: mediaImageView,
+                attribute: NSLayoutAttribute.width,
+                relatedBy: NSLayoutRelation.equal,
+                toItem: mediaImageView,
+                attribute: NSLayoutAttribute.height,
+                multiplier: aspect,
+                constant: 0.0)
+            mediaImageView.image = mediaImage
+        }
+        else
+        {
+            // No image, create mediaImageView height constraint of 0 so
+            // that it has no effect on auto layout.
+            mediaImageViewAspectConstraint = NSLayoutConstraint(
+                item: mediaImageView,
+                attribute: NSLayoutAttribute.height,
+                relatedBy: NSLayoutRelation.equal,
+                toItem: nil,
+                attribute: NSLayoutAttribute.notAnAttribute,
+                multiplier: 1,
+                constant: 0)
+            
+            mediaImageView.image = nil
+        }
         isDummy = tweet.isDummy
     }
-
+    
     // Fade in the specified image if it is not cached, or simply update
     // the image if it was cached.
     func setImage(imageView: UIImageView, imageUrl: URL)
