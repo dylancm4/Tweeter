@@ -39,7 +39,7 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome to Tweeter" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qkw-YA-D1l">
-                                <rect key="frame" x="54" y="228" width="267" height="84"/>
+                                <rect key="frame" x="54" y="228.5" width="267" height="83.5"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="35"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -207,7 +207,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Vyf-a8-hng">
-                                <rect key="frame" x="16" y="72" width="343" height="587"/>
+                                <rect key="frame" x="16" y="28" width="343" height="631"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="21"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences" keyboardType="twitter"/>
@@ -258,7 +258,7 @@
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="What's happening?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vCx-6H-3xg">
-                                <rect key="frame" x="21" y="80" width="176" height="25"/>
+                                <rect key="frame" x="21" y="36" width="176" height="25"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="21"/>
                                 <color key="textColor" red="0.66666666666666663" green="0.72156862745098038" blue="0.76078431372549016" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -326,7 +326,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="450"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="qd2-fO-PZ5" id="cDd-gd-fAI">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="449"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="450"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aQw-bj-Z7c">
@@ -763,11 +763,12 @@
                         <outlet property="tweetsErrorBannerView" destination="081-nJ-pQ5" id="31e-e9-B3x"/>
                         <outlet property="tweetsTableView" destination="XnS-Os-cxt" id="oF4-W4-YB6"/>
                         <segue destination="Uwl-Lu-OSG" kind="presentation" identifier="replySegue" id="MDU-xT-On9"/>
+                        <segue destination="Y1x-zF-u9I" kind="presentation" identifier="viewTweetSegue" id="Vbf-Et-GP3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="afl-8d-Un8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1328.8" y="734.48275862068976"/>
+            <point key="canvasLocation" x="1329" y="734"/>
         </scene>
         <!--Mentions-->
         <scene sceneID="Ofe-K3-jIb">
@@ -1088,8 +1089,8 @@
         <image name="Warning-FFFFFF-30" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="MDU-xT-On9"/>
         <segue reference="RgZ-5x-e6t"/>
-        <segue reference="dxH-WY-Ook"/>
+        <segue reference="Vbf-Et-GP3"/>
+        <segue reference="MDU-xT-On9"/>
     </inferredMetricsTieBreakers>
 </document>
